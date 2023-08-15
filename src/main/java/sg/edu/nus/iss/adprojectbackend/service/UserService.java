@@ -21,4 +21,12 @@ public interface UserService {
     Mono<UserDTO> save(Mono<UserDTO> userDTO);
 
     Flux<UserDTO> findAllByCreatedDateBetween(LocalDateTime startDate, LocalDateTime endDate);
+
+    public Mono<Boolean> checkEmailExist(String email);
+
+    public Mono<User> createUserAcc(UserDTO userDTO);
+
+    public Mono<UserDTO> findUserByEmail(String email);
+
+    public Mono<User> updateUserAcc(UserDTO userDTO, String email);
 }

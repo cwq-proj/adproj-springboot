@@ -22,4 +22,7 @@ public interface StaffService {
 
     Mono<Staff> getStaffById(String staffId);
 
+
+    public Mono<Boolean> checkEmailExist(String email);
+
 }

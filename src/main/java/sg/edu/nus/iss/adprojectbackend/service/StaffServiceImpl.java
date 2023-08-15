@@ -67,4 +67,9 @@ public class StaffServiceImpl implements StaffService{
     public Mono<Staff> findByEmail(String email) {
         return staffRepository.findByEmail(email);
     }
+
+    @Override
+    public Mono<Boolean> checkEmailExist(String email) {
+        return staffRepository.existsByEmailIgnoreCase(email);
+    }
 }

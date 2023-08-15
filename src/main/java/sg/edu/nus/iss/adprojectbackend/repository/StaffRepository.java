@@ -13,4 +13,5 @@ public interface StaffRepository extends ReactiveMongoRepository<Staff, String>{
 
     Mono<Staff> findByEmail(String email);
     
+    Mono<Boolean> existsByEmailIgnoreCase(String email);
 }
