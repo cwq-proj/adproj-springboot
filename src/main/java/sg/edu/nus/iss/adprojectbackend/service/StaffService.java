@@ -16,5 +16,7 @@ public interface StaffService {
     Mono<Void> deleteStaff(String staffId);
 
     Mono<Staff> getStaffById(String staffId);
+
+    public Mono<Boolean> checkEmailExist(String email);
     
 }

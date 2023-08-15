@@ -62,4 +62,9 @@ public class StaffServiceImpl implements StaffService{
     public Mono<Staff> getStaffById(String staffId) {
         return staffRepository.findById(staffId);
     }
+
+    @Override
+    public Mono<Boolean> checkEmailExist(String email) {
+        return staffRepository.existsByEmailIgnoreCase(email);
+    }
 }

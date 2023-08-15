@@ -12,5 +12,9 @@ public interface SensitiveInfoRepository extends ReactiveMongoRepository<Sensiti
     Mono<SensitiveInfo> findByNric(String nric);
 
     Mono<SensitiveInfo> findByNricAndFirstNameAndLastName(String nric, String firstName, String lastName);
+
+    Mono<SensitiveInfo> findByNricIgnoreCase(String nric);
+    
+    Mono<Boolean> existsByNricIgnoreCase(String nric);
     
 }

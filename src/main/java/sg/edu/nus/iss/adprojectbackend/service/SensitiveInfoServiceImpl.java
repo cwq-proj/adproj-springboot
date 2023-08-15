@@ -48,5 +48,34 @@ public class SensitiveInfoServiceImpl implements SensitiveInfoService {
                 .flatMap(info -> Mono.just(modelMapper.map(info, SensitiveInfoDTO.class)));
     }
 
+    @Override
+    public Mono<SensitiveInfoDTO> getSensitiveInfoByNric(String nric) {
+        Mono<SensitiveInfo> sensitiveInfo = sensitiveInfoRepository.findByNricIgnoreCase(nric);
+        return sensitiveInfo.map((info) -> modelMapper.map(info, SensitiveInfoDTO.class))
+                .defaultIfEmpty(new SensitiveInfoDTO());
+    }
+
+    @Override
+    public Mono<SensitiveInfoDTO> getSensitiveInfoById(String id) {
+        return sensitiveInfoRepository.findById(id).map(info -> modelMapper.map(info, SensitiveInfoDTO.class)).defaultIfEmpty(new SensitiveInfoDTO());
+    }
+
+    @Override
+    public Mono<SensitiveInfo> updateSensitiveInfo(SensitiveInfoDTO sensitiveInfoDTO) {
+        return sensitiveInfoRepository.findById(sensitiveInfoDTO.getId())
+                .flatMap(info -> {
+                    info.setFirstName(sensitiveInfoDTO.getFirstName());
+                    info.setLastName(sensitiveInfoDTO.getLastName());
+                    info.setNric(sensitiveInfoDTO.getNric());
+                    info.setPhoneNumber(sensitiveInfoDTO.getPhoneNumber());
+                    return sensitiveInfoRepository.save(info);
+                });
+    }
+
+    @Override
+    public Mono<Boolean> checkNricExist(String nric) {
+        return sensitiveInfoRepository.existsByNricIgnoreCase(nric);
+    }
+
 
 }

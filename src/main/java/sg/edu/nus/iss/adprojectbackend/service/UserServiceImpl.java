@@ -49,5 +49,42 @@ public class UserServiceImpl implements UserService{
                 .map(user -> modelMapper.map(user, UserDTO.class));
     }
 
+    @Override
+    public Mono<Boolean> checkEmailExist(String email) {
+        return userRepository.existsByEmailIgnoreCase(email);
+    }
+
+    @Override
+    public Mono<User> createUserAcc(UserDTO userDTO) {
+        Mono<User> user = Mono.just(User.builder()
+                .firstName(userDTO.getFirstName())
+                .lastName(userDTO.getLastName())
+                .email(userDTO.getEmail())
+                .password(userDTO.getPassword())
+                .username(userDTO.getFirstName() + userDTO.getLastName())
+                .createdDate(LocalDateTime.now())
+                .build());
+
+        return user.flatMap(userRepository::save);
+    }
+
+    @Override
+    public Mono<UserDTO> findUserByEmail(String email) {
+        return userRepository.findByEmailIgnoreCase(email).map(user -> modelMapper.map(user, UserDTO.class));
+    }
+
+    @Override
+    public Mono<User> updateUserAcc(UserDTO userDTO, String email) {
+        return userRepository.findByEmailIgnoreCase(email)
+                .flatMap(user -> {
+                    user.setFirstName(userDTO.getFirstName());
+                    user.setLastName(userDTO.getLastName());
+                    user.setEmail(userDTO.getEmail());
+                    user.setPassword(userDTO.getPassword());
+                    user.setUsername(userDTO.getFirstName() + userDTO.getLastName());
+
+                    return userRepository.save(user);
+                });
+    }
 
 }

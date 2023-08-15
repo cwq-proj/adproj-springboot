@@ -2,15 +2,21 @@ package sg.edu.nus.iss.adprojectbackend.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.SignalType;
 import sg.edu.nus.iss.adprojectbackend.dto.*;
+import sg.edu.nus.iss.adprojectbackend.mapper.SensitiveInfoMapper;
+import sg.edu.nus.iss.adprojectbackend.model.HealthRecord;
+import sg.edu.nus.iss.adprojectbackend.model.SensitiveInfo;
+import sg.edu.nus.iss.adprojectbackend.model.User;
 import sg.edu.nus.iss.adprojectbackend.service.*;
 
 import java.time.LocalDateTime;
 import java.time.Period;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/dashboard")
@@ -106,5 +112,62 @@ public class DashboardController {
                         System.out.println(counter);
                     }
                 });
+    }
+
+    @GetMapping("/updateUserDetails")
+    public Mono<UserDTO> userDetails() {
+        // include httpsession to get email
+        String email = "test@example.com";
+
+        return userServiceImpl.findUserByEmail(email);
+    }
+
+    @PutMapping("/updateUserDetails")
+    @Transactional
+    public Mono<User> updateUserDetails(@RequestBody UserDTO userDTO) {
+        // include httpsession to get email
+        String email = "test@example.com";
+
+        return userServiceImpl.updateUserAcc(userDTO, email);
+    }
+
+    @GetMapping(value = "/createHealthRecord/{nric}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Mono<Map<String, Object>> patientInfo(@PathVariable String nric) {
+        return sensitiveInfoServiceImpl.getSensitiveInfoByNric(nric)
+                .map(SensitiveInfoMapper::toFormattedMap);
+    }
+
+    @Transactional
+    @PostMapping("/createHealthRecord")
+    public Mono<HealthRecord> createHealthRecord(@RequestBody CreateHealthRecordDTO createHealthRecordDTO) {
+        return healthRecordServiceImpl.createHealthRecord(createHealthRecordDTO);
+    }
+
+    @GetMapping("/updateHealthRecord/{id}")
+    public Mono<HealthRecordDTO> viewHealthRecord(@PathVariable("id") String healthRecordId) {
+        return healthRecordServiceImpl.getHealthRecordById(healthRecordId);
+    }
+
+    @PutMapping("/updateHealthRecord")
+    @Transactional
+    public Mono<HealthRecord> updateHealthRecord(@RequestBody HealthRecordDTO healthRecordDTO) {
+        return healthRecordServiceImpl.updateHealthRecord(healthRecordDTO);
+    }
+
+    @GetMapping(value ="/updateSensitiveInfo/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Mono<Map<String, Object>> viewSensitiveInfo(@PathVariable("id") String sensitiveInfoId) {
+        return sensitiveInfoServiceImpl.getSensitiveInfoById(sensitiveInfoId)
+                .map(SensitiveInfoMapper::toFormattedMap);
+    }
+
+    @PutMapping("/updateSensitiveInfo")
+    @Transactional
+    public Mono<SensitiveInfo> updateSensitiveInfo(@RequestBody SensitiveInfoDTO sensitiveInfoDTO) {
+        return sensitiveInfoServiceImpl.updateSensitiveInfo(sensitiveInfoDTO);
+    }
+
+    @GetMapping("/checkNRIC/{nric}")
+    public Mono<Boolean> checkEmailExist(@PathVariable String nric) {
+        return sensitiveInfoServiceImpl.checkNricExist(nric);
     }
 }
