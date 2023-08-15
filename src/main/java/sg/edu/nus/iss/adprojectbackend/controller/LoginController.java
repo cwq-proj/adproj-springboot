@@ -1,3 +1,4 @@
+/*
 package sg.edu.nus.iss.adprojectbackend.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,3 +52,4 @@ public class LoginController {
         return userServiceImpl.createUserAcc(userDTO);
     }
 }
+*/
