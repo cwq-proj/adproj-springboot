@@ -1,5 +1,6 @@
 package sg.edu.nus.iss.adprojectbackend.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
@@ -105,5 +106,6 @@ public class HealthRecord {
 
     @NotBlank
     @Field("createdDate")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     private LocalDateTime createdDate;
 }

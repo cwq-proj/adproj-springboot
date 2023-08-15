@@ -8,6 +8,8 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
@@ -36,5 +38,6 @@ public class SensitiveInfoDTO {
 
     @Field("createdDate")
     @NotBlank
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     private LocalDateTime createdDate;
 }
