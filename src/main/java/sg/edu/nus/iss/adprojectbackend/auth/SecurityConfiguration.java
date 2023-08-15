@@ -33,9 +33,7 @@ public class SecurityConfiguration {
                 .authorizeExchange(auth -> auth
                         .pathMatchers("/login/**").permitAll()
                         .pathMatchers("/api/staff/**").hasAnyRole("ADMIN","CLINIC")
-                        .pathMatchers("/admin/**").hasAnyRole("ADMIN")
-                        .pathMatchers("/clinic/**").hasAnyRole("CLINIC")
-                        .pathMatchers("/dashboard/**").permitAll()
+                        /*.pathMatchers("/dashboard/**").permitAll()*/
                         .anyExchange().authenticated()
                 )
                 .logout()
