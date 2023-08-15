@@ -7,6 +7,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import sg.edu.nus.iss.adprojectbackend.dto.UserDTO;
 import sg.edu.nus.iss.adprojectbackend.model.User;
+import sg.edu.nus.iss.adprojectbackend.repository.StaffRepository;
 import sg.edu.nus.iss.adprojectbackend.repository.UserRepository;
 
 import java.time.LocalDateTime;
@@ -14,13 +15,17 @@ import java.time.LocalDateTime;
 @Service
 public class UserServiceImpl implements UserService{
     private final UserRepository userRepository;
+
+    private final StaffRepository staffRepository;
     private final ModelMapper modelMapper;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository,
+                           StaffRepository staffRepository,
                            ModelMapper modelMapper) {
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
+        this.staffRepository = staffRepository;
     }
 
     @Override
@@ -30,9 +35,29 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    public Mono<User> createUser(User user) {
+        return userRepository.save(user);
+    }
+
+    @Override
     public Mono<UserDTO> findById(String id) {
         Mono<User> user =  userRepository.findById(id);
         return user.map( (x) -> modelMapper.map(x, UserDTO.class));
+    }
+
+    @Override
+    //Check whether there are existing email in the staff and user tables.
+    public Mono<Boolean> checkAllEmailExist(String email) {
+        Mono<Boolean> userExistsMono = userRepository.existsByEmail(email);
+        Mono<Boolean> staffExistsMono = staffRepository.existsByEmail(email);
+
+        return Mono.zip(userExistsMono, staffExistsMono)
+                .map(tuple -> tuple.getT1() || tuple.getT2());
+    }
+
+    @Override
+    public Mono<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
     @Override
