@@ -12,4 +12,6 @@ public interface HealthRecordRepository extends ReactiveMongoRepository<HealthRe
 
     @Query("{ $and: [ { 'sensitiveInfo': { $exists: true } }, { 'sensitiveInfo': ?0 } ] }")
     Flux<HealthRecord> findBySensitiveInfo(String sensitiveInfoId);
+
+    Flux<HealthRecord> findBySensitiveInfoOrderByCreatedDateDesc(String sensitiveInfoId);
 }

@@ -5,6 +5,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import sg.edu.nus.iss.adprojectbackend.dto.HealthRecordCacheDTO;
 import sg.edu.nus.iss.adprojectbackend.dto.ModelInfoDTO;
 
@@ -31,5 +34,6 @@ public class ApplicationCache {
     private HealthRecordCacheDTO healthRecordCacheDTO;
 
     @Field("lastUpdated")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     private LocalDateTime lastUpdated;
 }

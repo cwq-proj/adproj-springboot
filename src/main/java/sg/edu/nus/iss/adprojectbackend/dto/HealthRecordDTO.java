@@ -1,5 +1,6 @@
 package sg.edu.nus.iss.adprojectbackend.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -82,5 +83,6 @@ public class HealthRecordDTO {
 
     @NotBlank
     @Field("createdDate")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     private LocalDateTime createdDate;
 }
