@@ -18,8 +18,7 @@ public class HealthRecordCacheDTO {
     @NotBlank
     private BinaryClassificationDTO tenYearCHD;
     @NotBlank
-    private ContinuousVariableDTO age;
+    private BinaryClassificationDTO currentSmoker;
     @NotBlank
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-    private LocalDateTime updatedDate;
+    private ContinuousVariableDTO age;
 }

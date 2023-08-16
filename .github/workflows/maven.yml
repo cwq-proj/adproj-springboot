@@ -45,4 +45,4 @@ jobs:
       with:
         context: .
         push: true
-        tags: qw28394/adproj-springboot:test
+        tags: qw28394/adproj-springboot:v1-1

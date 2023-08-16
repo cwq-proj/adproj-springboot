@@ -11,8 +11,9 @@ public interface ApplicationCacheService {
 
     Mono<ApplicationCacheDTO> updateHealthRecordCacheCHD(String name);
 
-    Mono<ApplicationCacheDTO> updateApplicationCache(String name);
+    Mono<ApplicationCacheDTO> updateHealthRecordCacheCurrentSmoker(String name);
 
+    Mono<ApplicationCacheDTO> updateApplicationCache(String name);
 
     Mono<ApplicationCacheDTO> findByName(String name);
 }

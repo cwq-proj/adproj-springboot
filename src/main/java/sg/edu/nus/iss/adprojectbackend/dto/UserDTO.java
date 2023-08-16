@@ -39,6 +39,9 @@ public class UserDTO {
     private String sensitiveInfo;
 
     @NotBlank
+    private String role;
+
+    @NotBlank
     @Field("createdDate")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     private LocalDateTime createdDate;

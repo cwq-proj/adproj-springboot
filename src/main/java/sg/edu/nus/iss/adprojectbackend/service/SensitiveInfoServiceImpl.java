@@ -23,8 +23,7 @@ public class SensitiveInfoServiceImpl implements SensitiveInfoService {
 
     @Override
     public Flux<SensitiveInfoDTO> getSensitiveInfoList() {
-        Flux<SensitiveInfo> sensitiveInfoList = sensitiveInfoRepository.findAll();
-        return sensitiveInfoList.map((info) -> modelMapper.map(info, SensitiveInfoDTO.class));
+        return sensitiveInfoRepository.findAll().map(x -> modelMapper.map(x, SensitiveInfoDTO.class));
     }
 
     @Override

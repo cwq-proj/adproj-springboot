@@ -16,7 +16,7 @@ import sg.edu.nus.iss.adprojectbackend.util.LabelCountStrategies;
 import java.time.LocalDateTime;
 
 @Service
-public class ApplicationCacheServiceImpl implements  ApplicationCacheService{
+public class ApplicationCacheServiceImpl implements ApplicationCacheService {
 
     private final ApplicationCacheRepository applicationCacheRepository;
     private final ModelMapper modelMapper;
@@ -25,7 +25,7 @@ public class ApplicationCacheServiceImpl implements  ApplicationCacheService{
     @Autowired
     public ApplicationCacheServiceImpl(ApplicationCacheRepository applicationCacheRepository,
                                        ModelMapper modelMapper,
-                                       HealthRecordService healthRecordServiceImpl){
+                                       HealthRecordService healthRecordServiceImpl) {
         this.applicationCacheRepository = applicationCacheRepository;
         this.modelMapper = modelMapper;
         this.healthRecordServiceImpl = healthRecordServiceImpl;
@@ -92,12 +92,38 @@ public class ApplicationCacheServiceImpl implements  ApplicationCacheService{
                     // Apply the health record cache age update using the util method and the flux of health records
                     return ApplicationCacheUtil.updateHealthRecordCacheBinary(Mono.just(applicationCacheDTO)
                                     , healthRecordsDTO, strategy)
-                            .flatMap(updatedCacheDTO ->{
-                                    // Set the lastUpdate field to the current timestamp
-                                    updatedCacheDTO.setLastUpdated(LocalDateTime.now());
-                                    return applicationCacheRepository.save(modelMapper.map(updatedCacheDTO, ApplicationCache.class))
-                                            .map(savedCache -> modelMapper.map(savedCache, ApplicationCacheDTO.class));
+                            .flatMap(updatedCacheDTO -> {
+                                // Set the lastUpdate field to the current timestamp
+                                updatedCacheDTO.setLastUpdated(LocalDateTime.now());
+                                return applicationCacheRepository.save(modelMapper.map(updatedCacheDTO, ApplicationCache.class))
+                                        .map(savedCache -> modelMapper.map(savedCache, ApplicationCacheDTO.class));
+                            });
+                })
+                .onErrorResume(throwable -> {
+                    // Handle errors and return a default value or a specific error response
+                    return Mono.error(new Exception("An error occurred while updating health record cache."));
                 });
+    }
+
+    @Override
+    @Transactional
+    public Mono<ApplicationCacheDTO> updateHealthRecordCacheCurrentSmoker(String name) {
+        LabelCountStrategies.CurrentSmokerCountStrategy strategy =
+                new LabelCountStrategies.CurrentSmokerCountStrategy();
+        return applicationCacheRepository.findByName(name)
+                .map(applicationCache -> modelMapper.map(applicationCache, ApplicationCacheDTO.class))
+                .flatMap(applicationCacheDTO -> {
+                    Flux<HealthRecordDTO> healthRecordsDTO = healthRecordServiceImpl.getHealthRecords(); // Obtain the flux of health records
+
+                    // Apply the health record cache age update using the util method and the flux of health records
+                    return ApplicationCacheUtil.updateHealthRecordCacheBinary(Mono.just(applicationCacheDTO)
+                                    , healthRecordsDTO, strategy)
+                            .flatMap(updatedCacheDTO -> {
+                                // Set the lastUpdate field to the current timestamp
+                                updatedCacheDTO.setLastUpdated(LocalDateTime.now());
+                                return applicationCacheRepository.save(modelMapper.map(updatedCacheDTO, ApplicationCache.class))
+                                        .map(savedCache -> modelMapper.map(savedCache, ApplicationCacheDTO.class));
+                            });
                 })
                 .onErrorResume(throwable -> {
                     // Handle errors and return a default value or a specific error response
@@ -110,6 +136,8 @@ public class ApplicationCacheServiceImpl implements  ApplicationCacheService{
     public Mono<ApplicationCacheDTO> updateApplicationCache(String name) {
         LabelCountStrategies.CHDCountStrategy chdStrategy = new LabelCountStrategies.CHDCountStrategy();
         LabelCountStrategies.MaleLabelCountStrategy maleStrategy = new LabelCountStrategies.MaleLabelCountStrategy();
+        LabelCountStrategies.CurrentSmokerCountStrategy smokerCountStrategy =
+                new LabelCountStrategies.CurrentSmokerCountStrategy();
 
         return applicationCacheRepository.findByName(name)
                 .map(applicationCache -> modelMapper.map(applicationCache, ApplicationCacheDTO.class))
@@ -123,16 +151,18 @@ public class ApplicationCacheServiceImpl implements  ApplicationCacheService{
                     Mono<ApplicationCacheDTO> maleUpdate = ApplicationCacheUtil.updateHealthRecordCacheBinary(
                             Mono.just(applicationCacheDTO), healthRecordsDTO, maleStrategy);
 
+                    Mono<ApplicationCacheDTO> smokerUpdate = ApplicationCacheUtil.updateHealthRecordCacheBinary(
+                            Mono.just(applicationCacheDTO), healthRecordsDTO, smokerCountStrategy);
+
                     // Apply the health record cache age update using the util method and the flux of health records
                     Mono<ApplicationCacheDTO> ageUpdate = ApplicationCacheUtil.updateHealthRecordCacheAge(
                             Mono.just(applicationCacheDTO), healthRecordsDTO);
 
-                    // Combine the updates into a single Mono
-                    return chdUpdate.zipWith(maleUpdate).zipWith(ageUpdate)
+                    return Mono.zip(chdUpdate, maleUpdate, smokerUpdate, ageUpdate)
                             .flatMap(tuple -> {
-                                ApplicationCacheDTO updatedCacheDTO = tuple.getT1().getT1();
-                                // Set the lastUpdate field to the current timestamp
+                                ApplicationCacheDTO updatedCacheDTO = tuple.getT1();
                                 updatedCacheDTO.setLastUpdated(LocalDateTime.now());
+
                                 return applicationCacheRepository.save(modelMapper.map(updatedCacheDTO, ApplicationCache.class))
                                         .map(savedCache -> modelMapper.map(savedCache, ApplicationCacheDTO.class));
                             });
@@ -149,6 +179,4 @@ public class ApplicationCacheServiceImpl implements  ApplicationCacheService{
         return applicationCacheRepository.findByName(name)
                 .map(applicationCache -> modelMapper.map(applicationCache, ApplicationCacheDTO.class));
     }
-
-
 }

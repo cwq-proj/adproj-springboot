@@ -11,11 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Component
 public class ApplicationCacheUtil {
 
-    private static final int NUMDATA = 20;
+    private static final int NUMDATA = 50;
 
     public static Mono<List<Double>> getMinMaxIntervals(Flux<HealthRecordDTO> healthRecordDTOFlux) {
         return healthRecordDTOFlux
@@ -77,9 +79,6 @@ public class ApplicationCacheUtil {
                             });
                 });
     }
-
-
-
 
     public static Mono<ApplicationCacheDTO> updateHealthRecordCacheBinary(Mono<ApplicationCacheDTO> applicationDTOMono,
                                                                     Flux<HealthRecordDTO> healthRecordsDTO,

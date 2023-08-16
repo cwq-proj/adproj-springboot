@@ -31,6 +31,7 @@ public class HealthRecordController {
     @Transactional
     public Flux<HealthRecordDTO> getHealthRecords(@RequestBody VerifyIdDTO idDTO) {
         String userId = idDTO.getId(); // get the userId
+        System.out.println(userId);
         return userServiceImpl.findById(userId)
                 .flatMapMany(user -> {
                     String sensitiveInfoId = user.getSensitiveInfo(); // get the sensitive info id
@@ -45,6 +46,7 @@ public class HealthRecordController {
         String firstName = recordDTO.getFirstName();
         String lastName = recordDTO.getLastName();
         String userId = recordDTO.getUserId();
+        System.out.println(userId +", " +  firstName + ", " + lastName);
 
         return sensitiveInfoServiceImpl.findByNricAndFirstNameAndLastName(nric, firstName, lastName)
                 .flatMapMany(sensitiveInfoDTO -> {

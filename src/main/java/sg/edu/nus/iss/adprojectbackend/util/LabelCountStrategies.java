@@ -37,4 +37,18 @@ public class LabelCountStrategies {
             healthRecordDTO.getTenYearCHD().setFalseLabelCount((int) falseCount);
         }
     }
+
+    public static class CurrentSmokerCountStrategy implements LabelCountStrategy{
+
+        @Override
+        public long getCount(HealthRecordDTO healthRecordDTO) {
+            return healthRecordDTO.getCurrentSmoker() == 1 ? 1 : 0;
+        }
+
+        @Override
+        public void updateCounts(HealthRecordCacheDTO healthRecordDTO, long trueCount, long falseCount) {
+            healthRecordDTO.getCurrentSmoker().setTrueLabelCount((int) trueCount);
+            healthRecordDTO.getCurrentSmoker().setFalseLabelCount((int) falseCount);
+        }
+    }
 }

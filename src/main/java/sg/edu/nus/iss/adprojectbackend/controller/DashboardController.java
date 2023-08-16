@@ -56,7 +56,7 @@ public class DashboardController {
         return staffServiceImpl.getStaff();
     }
 
-    @GetMapping(value = "sensitive-info", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "sensitive-info")
     public Flux<SensitiveInfoDTO> getSensitiveInfoList() {
         return sensitiveInfoServiceImpl.getSensitiveInfoList();
     }
@@ -71,47 +71,27 @@ public class DashboardController {
         return newUsersDTOMono
                 .defaultIfEmpty(new NewUsersDTO()) // Use an empty NewUsersDTO as default value
                 .flatMap(newUsersDTO -> {
-                    LocalDateTime dateTo = newUsersDTO.getDateTo() != null ? newUsersDTO.getDateTo().plusMonths(1) : LocalDateTime.now();
-                    LocalDateTime dateFrom = newUsersDTO.getDateFrom() != null ? newUsersDTO.getDateFrom().plusMonths(1) :
-                            LocalDateTime.now().minus(Period.ofMonths(1));
+                    LocalDateTime dateTo = newUsersDTO.getDateTo() != null ? newUsersDTO.getDateTo()
+                            : LocalDateTime.now();
+                    LocalDateTime dateFrom = newUsersDTO.getDateFrom() != null ? newUsersDTO.getDateFrom()
+                            : LocalDateTime.now().minus(Period.ofMonths(1));
 
                     LocalDateTime adjustedDateFrom = dateFrom.withMonth(dateFrom.getMonthValue());
                     LocalDateTime adjustedDateTo = dateTo.withMonth(dateTo.getMonthValue());
 
                     return userServiceImpl.findAllByCreatedDateBetween(adjustedDateFrom, adjustedDateTo)
                             .count()
-                            .map(count ->
-                                    NewUsersDTO.builder()
-                                            .numUsers(count)
-                                            .dateFrom(adjustedDateFrom)
-                                            .dateTo(adjustedDateTo)
-                                            .build()
-                            );
+                            .map(count -> NewUsersDTO.builder()
+                                    .numUsers(count)
+                                    .dateFrom(adjustedDateFrom)
+                                    .dateTo(adjustedDateTo)
+                                    .build());
                 });
     }
 
     @GetMapping(value = "sync-data")
     public Mono<ApplicationCacheDTO> getNewUsers() {
         return applicationCacheServiceImpl.updateApplicationCache("info");
-    }
-
-
-    // Methods from this point on are for testing sse
-
-    private int counter = 0;
-    @GetMapping(value = "/health-records-sse", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<HealthRecordDTO> getHealthRecordsSSE() {
-        counter ++;
-        Flux<HealthRecordDTO> healthRecordsFlux = healthRecordServiceImpl.getHealthRecords();
-
-        return healthRecordsFlux
-                .doFinally(signalType -> {
-                    if (signalType == SignalType.ON_COMPLETE) {
-                        // Log or perform any necessary cleanup when the stream completes
-                        System.out.println("SSE stream completed");
-                        System.out.println(counter);
-                    }
-                });
     }
 
     @GetMapping("/updateUserDetails")

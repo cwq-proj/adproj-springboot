@@ -21,6 +21,8 @@ import sg.edu.nus.iss.adprojectbackend.service.UserServiceImpl;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Data
 @RestController
@@ -79,18 +81,24 @@ public class AuthController {
         Mono<User> foundUser = userServiceImpl.findByEmail(request.getEmail());
 
         return foundUser.flatMap(u ->{
-                if (passwordEncoder.matches(request.getPassword(),u.getPassword())){
-                    var jwtToken = jwtService.generateToken(u);
-                    return Mono.just(
-                            ResponseEntity.ok(
-                                    new RequestResponse<String>(jwtToken,"success")
-                            )
-                    );
-                }
+            if (passwordEncoder.matches(request.getPassword(),u.getPassword())){
+                Map<String, Object> extraClaims = new HashMap<>();
+                extraClaims.put("id", u.getId());
+                extraClaims.put("firstname", u.getFirstName());
+                extraClaims.put("lastname",u.getLastName());
+                extraClaims.put("sensitive",u.getSensitiveInfo());
+
+                var jwtToken = jwtService.generateToken(extraClaims,u);
                 return Mono.just(
-                        ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                                .body(new RequestResponse<String>("","Invalid Credentials"))
+                        ResponseEntity.ok(
+                                new RequestResponse<String>(jwtToken,"success")
+                        )
                 );
+            }
+            return Mono.just(
+                    ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                            .body(new RequestResponse<String>("","Invalid Credentials"))
+            );
         }).switchIfEmpty(Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new RequestResponse<>("","User not found"))));
 /*        Mono<UserDetails> foundUser = user.findByUsername(request.getEmail());
@@ -141,7 +149,12 @@ public class AuthController {
 
                 return userServiceImpl.createUser(user1)
                         .flatMap(user -> {
-                            var jwtToken = jwtService.generateToken(user);
+                            Map<String, Object> extraClaims = new HashMap<>();
+                            extraClaims.put("id", user.getId());
+                            extraClaims.put("firstname", user.getFirstName());
+                            extraClaims.put("lastname",user.getLastName());
+                            extraClaims.put("sensitive",user.getSensitiveInfo());
+                            var jwtToken = jwtService.generateToken(extraClaims,user);
                             RequestResponse<String> successResponse = RequestResponse.<String>builder()
                                     .data(jwtToken)
                                     .message("Register success")
@@ -161,7 +174,12 @@ public class AuthController {
 
         return foundUser.flatMap(u ->{
             if (passwordEncoder.matches(request.getPassword(),u.getPassword())){
-                var jwtToken = jwtService.generateToken(u);
+                Map<String, Object> extraClaims = new HashMap<>();
+                extraClaims.put("id", u.getId());
+                extraClaims.put("firstname", u.getFirstName());
+                extraClaims.put("lastname",u.getLastName());
+                extraClaims.put("role",u.getRole());
+                var jwtToken = jwtService.generateToken(extraClaims,u);
                 return Mono.just(
                         ResponseEntity.ok(
                                 new RequestResponse<String>(jwtToken,"success")
@@ -205,7 +223,12 @@ public class AuthController {
 
                 return userServiceImpl.createUser(user1)
                         .flatMap(user -> {
-                            var jwtToken = jwtService.generateToken(user);
+                            Map<String, Object> extraClaims = new HashMap<>();
+                            extraClaims.put("id", user.getId());
+                            extraClaims.put("firstname", user.getFirstName());
+                            extraClaims.put("lastname",user.getLastName());
+                            extraClaims.put("role",user.getRole());
+                            var jwtToken = jwtService.generateToken(extraClaims,user);
                             RequestResponse<String> successResponse = RequestResponse.<String>builder()
                                     .data(jwtToken)
                                     .message("Register success")

@@ -17,7 +17,7 @@ public class ReactiveMongoConfig extends AbstractReactiveMongoConfiguration {
     @Bean
     @Override
     public MongoClient reactiveMongoClient() {
-        String connectionString = "mongodb+srv://adproj:adproj@adproject.5qkulrm.mongodb.net/?retryWrites=true&w=majority";
+        String connectionString = "mongodb+srv://adproj:adproj@adproj.lb4ahfs.mongodb.net/?retryWrites=true&w=majority";
         return MongoClients.create(connectionString);
     }
 
